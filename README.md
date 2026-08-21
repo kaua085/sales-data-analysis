@@ -29,6 +29,26 @@ Analisar uma base fictícia de vendas para responder perguntas de negócio como:
 - Quais produtos possuem maior relevância comercial?
 
 ---
+## 🚀 Dashboard Online
+
+O projeto possui um dashboard interativo desenvolvido com Streamlit e Plotly, permitindo explorar os principais indicadores de vendas por meio de filtros dinâmicos.
+
+### 🔗 Acesse o projeto
+
+[📊 Abrir Dashboard Interativo](https://kaua-sales-analytics.streamlit.app)
+
+### Funcionalidades
+
+- 📈 Acompanhamento do faturamento
+- 💰 Ticket médio
+- 🧾 Quantidade de pedidos
+- 📦 Itens vendidos
+- 🏆 Identificação do produto líder
+- 🏷️ Análise por categoria
+- 🌎 Análise por cidade
+- 📅 Análise temporal
+- 🔎 Filtros interativos
+- 📥 Exportação dos dados filtrados em CSV
 
 ## 🛠️ Tecnologias utilizadas
 
