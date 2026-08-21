@@ -1,0 +1,63 @@
+
+==================================================
+SALES DATA ANALYSIS
+==================================================
+
+REGISTROS ANALISADOS: 10,000
+
+KPIs
+
+Faturamento bruto: R$ 15,538,616.62
+Descontos concedidos: R$ 582,796.05
+Faturamento líquido: R$ 14,955,820.57
+
+Ticket médio: R$ 1,495.58
+Pedidos: 10,000
+Itens vendidos: 15,009
+Desconto sobre faturamento bruto: 3.75%
+
+Produto líder: Notebook
+Participação do produto líder: 31.07%
+
+Categoria líder: Eletrônicos
+Cidade líder: Fortaleza
+Canal líder: Loja Física
+
+Melhor mês: 2026-04
+Receita do melhor mês: R$ 900,222.53
+
+==================================================
+TOP 10 PRODUTOS
+==================================================
+
+                 quantidade       receita
+product                                  
+Notebook               1000  4.646726e+06
+Smartphone              994  2.590933e+06
+Cadeira Gamer           994  1.361342e+06
+Monitor                 975  1.199506e+06
+Impressora              973  1.079502e+06
+Mesa Escritório        1037  1.020257e+06
+SSD 1TB                1014  4.539510e+05
+Caixa de Som            934  4.077413e+05
+Webcam                 1014  3.985624e+05
+Fone Bluetooth         1039  3.678321e+05
+
+==================================================
+INSIGHTS
+==================================================
+
+O produto Notebook apresentou a maior receita,
+representando 31.07% do faturamento.
+
+A categoria líder foi Eletrônicos.
+
+A cidade com maior faturamento foi Fortaleza.
+
+O canal com maior receita foi Loja Física.
+
+O melhor período da série foi 2026-04.
+
+Os indicadores permitem acompanhar concentração de receita,
+desempenho comercial, comportamento temporal e distribuição
+das vendas.

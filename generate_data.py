@@ -5,10 +5,10 @@ import pandas as pd
 random.seed(42)
 
 BASE = Path(__file__).parent
-DATA = BASE / "data"
-DATA.mkdir(exist_ok=True)
+DATA_DIR = BASE / "data"
+DATA_DIR.mkdir(exist_ok=True)
 
-produtos = {
+PRODUTOS = {
     "Notebook": ("Eletrônicos", 3200, 6500),
     "Smartphone": ("Eletrônicos", 900, 4500),
     "Monitor": ("Eletrônicos", 650, 1900),
@@ -26,16 +26,7 @@ produtos = {
     "Fone Bluetooth": ("Áudio", 80, 650),
 }
 
-cidades = [
-    "Fortaleza",
-    "Caucaia",
-    "Itapipoca",
-    "Maracanaú",
-    "Sobral",
-    "Juazeiro do Norte",
-]
-
-regioes = {
+CIDADES = {
     "Fortaleza": "Fortaleza",
     "Caucaia": "Região Metropolitana",
     "Maracanaú": "Região Metropolitana",
@@ -44,31 +35,26 @@ regioes = {
     "Juazeiro do Norte": "Interior",
 }
 
-canais = ["Loja Física", "Site", "Marketplace"]
+CANAIS = ["Loja Física", "Site", "Marketplace"]
 
-pagamentos = [
+PAGAMENTOS = [
     "PIX",
     "Cartão de Crédito",
     "Cartão de Débito",
     "Boleto",
 ]
 
-datas = pd.date_range(
-    "2025-01-01",
-    "2026-07-31",
-    freq="D"
-)
+datas = pd.date_range("2025-01-01", "2026-07-31", freq="D")
 
 registros = []
 
 for numero in range(1, 10001):
-
-    produto = random.choice(list(produtos.keys()))
-    categoria, preco_min, preco_max = produtos[produto]
+    produto = random.choice(list(PRODUTOS))
+    categoria, preco_min, preco_max = PRODUTOS[produto]
 
     cidade = random.choices(
-        cidades,
-        weights=[40, 15, 10, 12, 12, 11],
+        list(CIDADES),
+        weights=[40, 15, 12, 10, 12, 11],
         k=1,
     )[0]
 
@@ -84,39 +70,37 @@ for numero in range(1, 10001):
         k=1,
     )[0]
 
-    registros.append({
-        "order_id": f"PED{numero:05d}",
-        "date": random.choice(datas),
-        "product": produto,
-        "category": categoria,
-        "city": cidade,
-        "region": regioes[cidade],
-        "channel": random.choice(canais),
-        "payment_method": random.choice(pagamentos),
-        "quantity": quantidade,
-        "unit_price": round(
-            random.uniform(preco_min, preco_max), 2
-        ),
-        "discount": desconto,
-    })
+    registros.append(
+        {
+            "order_id": f"PED{numero:05d}",
+            "date": random.choice(datas),
+            "product": produto,
+            "category": categoria,
+            "city": cidade,
+            "region": CIDADES[cidade],
+            "channel": random.choice(CANAIS),
+            "payment_method": random.choice(PAGAMENTOS),
+            "quantity": quantidade,
+            "unit_price": round(
+                random.uniform(preco_min, preco_max), 2
+            ),
+            "discount": desconto,
+        }
+    )
 
 df = pd.DataFrame(registros)
-
 df = df.sort_values("date").reset_index(drop=True)
 
-arquivo = DATA / "sales.csv"
+arquivo = DATA_DIR / "sales.csv"
+df.to_csv(arquivo, index=False)
 
-df.to_csv(
-    arquivo,
-    index=False
-)
-
-print("=" * 50)
-print("BASE DE VENDAS GERADA COM SUCESSO")
-print("=" * 50)
+print("=" * 55)
+print("BASE SINTÉTICA GERADA COM SUCESSO")
+print("=" * 55)
 print(f"Registros: {len(df):,}")
 print(f"Pedidos: {df['order_id'].nunique():,}")
 print(f"Produtos: {df['product'].nunique()}")
+print(f"Categorias: {df['category'].nunique()}")
 print(f"Cidades: {df['city'].nunique()}")
 print(f"Período: {df['date'].min()} até {df['date'].max()}")
 print(f"Arquivo: {arquivo}")

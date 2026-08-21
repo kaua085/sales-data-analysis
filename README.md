@@ -1,83 +1,99 @@
-# 📊 Sales Data Analysis — Python
+# 📊 Sales Data Analysis
 
 <p align="center">
   <img src="https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white">
   <img src="https://img.shields.io/badge/Pandas-Data%20Analysis-150458?logo=pandas&logoColor=white">
-  <img src="https://img.shields.io/badge/Matplotlib-Visualization-orange">
-  <img src="https://img.shields.io/badge/CSV-Data-green">
-  <img src="https://img.shields.io/badge/Git-Version%20Control-F05032?logo=git&logoColor=white">
+  <img src="https://img.shields.io/badge/Plotly-Interactive-3F4F75?logo=plotly&logoColor=white">
+  <img src="https://img.shields.io/badge/Streamlit-Dashboard-FF4B4B?logo=streamlit&logoColor=white">
   <img src="https://img.shields.io/badge/GitHub-Portfolio-181717?logo=github&logoColor=white">
 </p>
 
-Projeto de **análise exploratória de dados de vendas**, desenvolvido em Python para transformar dados brutos em informações úteis para tomada de decisão.
+Projeto completo de **Análise de Dados de Vendas**, desenvolvido para transformar uma base comercial sintética em indicadores, análises, visualizações e um dashboard interativo.
 
-O projeto simula um cenário comercial no qual são analisadas vendas de diferentes produtos, categorias e cidades, permitindo identificar padrões de faturamento e desempenho.
+O projeto utiliza uma base com **10.000 transações fictícias**, abrangendo produtos, categorias, cidades, regiões, canais de venda, formas de pagamento e descontos.
 
-O objetivo principal é demonstrar habilidades práticas em **Python, Pandas, análise de dados, visualização, indicadores de negócio (KPIs) e geração automatizada de relatórios**.
-
----
-
-## 🎯 Objetivo
-
-Analisar uma base fictícia de vendas para responder perguntas de negócio como:
-
-- Qual é o faturamento total?
-- Qual é o ticket médio das vendas?
-- Quais produtos geram mais receita?
-- Quais categorias apresentam maior faturamento?
-- Quais cidades possuem melhor desempenho?
-- Quais produtos possuem maior relevância comercial?
+> **Nota:** todos os dados são sintéticos e foram criados exclusivamente para estudo e portfólio.
 
 ---
+
 ## 🚀 Dashboard Online
 
-O projeto possui um dashboard interativo desenvolvido com Streamlit e Plotly, permitindo explorar os principais indicadores de vendas por meio de filtros dinâmicos.
+### [📊 Abrir Dashboard Interativo](https://kaua-sales-analytics.streamlit.app)
 
-### 🔗 Acesse o projeto
-
-[📊 Abrir Dashboard Interativo](https://kaua-sales-analytics.streamlit.app)
-
-### Funcionalidades
-
-- 📈 Acompanhamento do faturamento
-- 💰 Ticket médio
-- 🧾 Quantidade de pedidos
-- 📦 Itens vendidos
-- 🏆 Identificação do produto líder
-- 🏷️ Análise por categoria
-- 🌎 Análise por cidade
-- 📅 Análise temporal
-- 🔎 Filtros interativos
-- 📥 Exportação dos dados filtrados em CSV
-
-## 🛠️ Tecnologias utilizadas
-
-| Tecnologia | Aplicação |
-|---|---|
-| 🐍 Python | Processamento e análise |
-| 🐼 Pandas | Manipulação e tratamento dos dados |
-| 📊 Matplotlib | Visualização dos resultados |
-| 📄 CSV | Armazenamento da base de vendas |
-| 🔀 Git | Controle de versão |
-| 🐙 GitHub | Versionamento e portfólio |
+O dashboard permite explorar os resultados dinamicamente através de filtros.
 
 ---
 
-## 📋 Indicadores analisados
+## 🎯 Problema de negócio
+
+O projeto busca responder perguntas como:
+
+- Quanto a operação faturou?
+- Qual é o ticket médio?
+- Quais produtos geram mais receita?
+- Quais produtos vendem mais unidades?
+- Qual categoria apresenta maior faturamento?
+- Quais cidades possuem melhor desempenho?
+- Qual canal gera mais receita?
+- Quais formas de pagamento são mais relevantes?
+- Como o faturamento evolui mensalmente?
+- Qual foi o crescimento entre os períodos?
+- Quanto foi concedido em descontos?
+- Existe concentração de receita em determinados produtos?
+
+---
+
+## 📊 Indicadores
 
 O projeto calcula automaticamente:
 
-- 💰 Faturamento total
+- 💰 Receita bruta
+- 🏷️ Descontos concedidos
+- 💵 Receita líquida
 - 🎫 Ticket médio
-- 🧾 Quantidade de pedidos
-- 🏆 Produtos com maior faturamento
-- 📦 Quantidade vendida por produto
-- 🟡 Receita por categoria
-- 🌎 Receita por cidade
+- 🧾 Pedidos
+- 📦 Itens vendidos
+- 🏆 Produto líder
+- 🏷️ Categoria líder
+- 🌎 Cidade líder
+- 🛒 Canal líder
+- 📅 Melhor mês
+- 📈 Crescimento mensal
+- 📊 Participação dos produtos
 
 ---
 
-## 📁 Estrutura do projeto
+## 🔎 Filtros do Dashboard
+
+O usuário pode filtrar os dados por:
+
+- Categoria
+- Cidade
+- Produto
+- Canal de venda
+- Forma de pagamento
+- Período
+
+Todos os indicadores e gráficos são recalculados automaticamente.
+
+---
+
+## 🛠️ Tecnologias
+
+| Tecnologia | Aplicação |
+|---|---|
+| Python | Programação e automação |
+| Pandas | Manipulação e análise |
+| Matplotlib | Gráficos estáticos |
+| Plotly | Visualizações interativas |
+| Streamlit | Dashboard |
+| CSV | Base de dados |
+| Git | Versionamento |
+| GitHub | Portfólio e código-fonte |
+
+---
+
+## 📁 Estrutura
 
 ```text
 sales-data-analysis/
@@ -88,133 +104,123 @@ sales-data-analysis/
 ├── graficos/
 │   ├── top_produtos.png
 │   ├── receita_por_categoria.png
-│   └── receita_por_cidade.png
+│   ├── receita_por_cidade.png
+│   ├── evolucao_mensal.png
+│   └── quantidade_por_produto.png
 │
 ├── saida/
+│   ├── resumo_kpis.csv
+│   ├── ranking_produtos.csv
+│   ├── receita_categorias.csv
+│   ├── receita_cidades.csv
+│   ├── receita_regioes.csv
+│   ├── receita_canais.csv
+│   ├── formas_pagamento.csv
+│   ├── evolucao_mensal.csv
+│   └── resultado.txt
 │
+├── generate_data.py
 ├── analysis.py
+├── dashboard.py
 ├── requirements.txt
+├── .gitignore
 ├── README.md
 └── LICENSE
 ```
 
 ---
 
-# 📈 Principais resultados
+# 📈 Análises
 
-A execução da análise apresentou os seguintes indicadores:
+## 🏆 Produtos por faturamento
 
-| Indicador | Resultado |
-|---|---:|
-| 💰 Faturamento total | **R$ 98.395,00** |
-| 🎫 Ticket médio | **R$ 1.639,92** |
-| 🧾 Pedidos analisados | **60** |
-| 🏆 Produto líder em receita | **Notebook** |
-| 💵 Receita com notebooks | **R$ 60.800,00** |
-| 📦 Notebooks vendidos | **19** |
+![Produtos](graficos/top_produtos.png)
+
+Permite identificar os produtos que possuem maior impacto financeiro na operação.
 
 ---
 
-## 🏆 Produtos com maior faturamento
+## 🏷️ Receita por categoria
 
-A análise mostra forte concentração da receita em determinados produtos.
+![Categorias](graficos/receita_por_categoria.png)
 
-![Top produtos por faturamento](graficos/top_produtos.png)
-
-O **Notebook** apresenta o maior impacto financeiro na base analisada, seguido pelo **Monitor**.
-
-Essa informação permite identificar quais produtos possuem maior relevância para o desempenho comercial.
-
----
-
-## 🟡 Receita por categoria
-
-![Receita por categoria](graficos/receita_por_categoria.png)
-
-A análise por categoria permite visualizar quais segmentos concentram maior valor de vendas.
-
-Esse tipo de indicador pode auxiliar decisões relacionadas a:
-
-- planejamento comercial;
-- gerenciamento de estoque;
-- definição de campanhas;
-- priorização de categorias;
-- acompanhamento de desempenho.
+Permite comparar a participação das diferentes categorias no faturamento.
 
 ---
 
 ## 🌎 Receita por cidade
 
-![Receita por cidade](graficos/receita_por_cidade.png)
+![Cidades](graficos/receita_por_cidade.png)
 
-A distribuição geográfica da receita permite comparar o desempenho das vendas entre diferentes localidades.
-
-Essa análise pode ajudar na identificação de mercados com maior participação no faturamento e possíveis oportunidades comerciais.
+Permite avaliar diferenças de desempenho entre mercados geográficos.
 
 ---
 
-# 💡 Insights de negócio
+## 📈 Evolução mensal
 
-A análise revelou uma **forte concentração do faturamento em produtos eletrônicos**, principalmente notebooks.
+![Evolução](graficos/evolucao_mensal.png)
 
-Os notebooks geraram aproximadamente:
-
-**R$ 60.800 / R$ 98.395 ≈ 61,8% do faturamento total.**
-
-Isso significa que um único produto representa mais da metade de toda a receita da base analisada.
-
-### 🔎 Interpretação
-
-A concentração demonstra que notebooks possuem grande importância para o resultado comercial.
-
-Ao mesmo tempo, uma dependência elevada de um único produto pode representar um risco para o negócio caso ocorram:
-
-- queda na demanda;
-- problemas de estoque;
-- aumento de custos;
-- redução da margem;
-- entrada de novos concorrentes.
-
-### 📌 Possíveis decisões
-
-Com base nos dados, uma empresa poderia:
-
-- garantir níveis adequados de estoque dos produtos de maior faturamento;
-- acompanhar frequentemente a disponibilidade de notebooks;
-- analisar margem e rentabilidade dos produtos líderes;
-- criar estratégias para aumentar as vendas de produtos complementares;
-- identificar oportunidades de crescimento nas categorias com menor participação;
-- analisar diferenças de desempenho entre cidades.
+A análise temporal permite identificar oscilações, crescimento e períodos de maior faturamento.
 
 ---
 
-# 📊 Fluxo da análise
+## 📦 Quantidade vendida
 
-O processo desenvolvido segue as principais etapas de uma análise de dados:
+![Quantidade](graficos/quantidade_por_produto.png)
+
+Permite diferenciar produtos líderes em receita daqueles líderes em volume.
+
+---
+
+# 💡 Aplicação de negócio
+
+Os indicadores podem apoiar decisões relacionadas a:
+
+- planejamento de estoque;
+- acompanhamento de produtos estratégicos;
+- análise do mix de produtos;
+- campanhas comerciais;
+- estratégia de descontos;
+- desempenho regional;
+- canais de venda;
+- comportamento temporal;
+- planejamento comercial.
+
+---
+
+# 🔄 Pipeline
 
 ```text
-Base CSV
-   ↓
-Carregamento dos dados
-   ↓
-Tratamento com Pandas
-   ↓
-Cálculo da receita
-   ↓
-Cálculo dos KPIs
-   ↓
-Agrupamento dos dados
-   ↓
-Análise por produto
-   ↓
-Análise por categoria
-   ↓
-Análise por cidade
-   ↓
-Criação dos gráficos
-   ↓
-Geração dos resultados
-   ↓
+Geração da base sintética
+        ↓
+CSV
+        ↓
+Carregamento com Pandas
+        ↓
+Limpeza e validação
+        ↓
+Engenharia de atributos
+        ↓
+Receita bruta
+        ↓
+Descontos
+        ↓
+Receita líquida
+        ↓
+KPIs
+        ↓
+Agrupamentos
+        ↓
+Análise temporal
+        ↓
+Rankings
+        ↓
+Gráficos
+        ↓
+Relatórios CSV/TXT
+        ↓
+Dashboard Streamlit
+        ↓
 Insights para tomada de decisão
 ```
 
@@ -222,102 +228,78 @@ Insights para tomada de decisão
 
 # 🧠 Competências demonstradas
 
-Este projeto demonstra conhecimentos práticos em:
-
-- manipulação e tratamento de dados com **Python e Pandas**;
-- leitura e análise de arquivos CSV;
-- criação e interpretação de **KPIs**;
-- cálculo de faturamento;
-- cálculo de ticket médio;
-- análise de desempenho por produto;
-- análise por categoria;
-- análise geográfica;
-- agrupamento de dados com `groupby`;
-- ordenação e transformação de informações;
-- visualização de dados com **Matplotlib**;
-- geração automatizada de gráficos;
-- geração de relatórios;
-- organização de projetos de análise;
-- controle de versão com **Git**;
-- publicação de projetos no **GitHub**;
-- interpretação de resultados para tomada de decisão.
+- Python
+- Pandas
+- limpeza de dados
+- transformação de dados
+- engenharia de atributos
+- análise exploratória
+- `groupby` e agregações
+- KPIs comerciais
+- análise temporal
+- crescimento percentual
+- análise de produtos
+- análise por categoria
+- análise geográfica
+- análise de canais
+- análise de descontos
+- Matplotlib
+- Plotly
+- Streamlit
+- dashboards interativos
+- filtros dinâmicos
+- exportação de dados
+- Git
+- GitHub
+- deploy de aplicação
 
 ---
 
-# ▶️ Como executar o projeto
+# ▶️ Como executar
 
-### 1. Clone o repositório
+Clone:
 
 ```bash
 git clone https://github.com/kaua085/sales-data-analysis.git
 ```
 
-### 2. Entre na pasta
+Entre no projeto:
 
 ```bash
 cd sales-data-analysis
 ```
 
-### 3. Instale as dependências
+Instale:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Execute a análise
+Caso queira recriar a base:
+
+```bash
+python generate_data.py
+```
+
+Execute a análise:
 
 ```bash
 python analysis.py
 ```
 
-Após a execução, o programa calcula os indicadores automaticamente e gera os arquivos de saída e os gráficos da análise.
+Execute o dashboard:
 
----
-
-# 📂 Base de dados
-
-A base utilizada neste projeto é **fictícia** e foi criada exclusivamente para fins de estudo e demonstração de competências em análise de dados.
-
-Entre as informações analisadas estão:
-
-- data da venda;
-- produto;
-- categoria;
-- quantidade;
-- preço unitário;
-- cidade.
-
-A receita é calculada através da relação:
-
-```text
-Receita = Quantidade × Preço Unitário
+```bash
+streamlit run dashboard.py
 ```
 
 ---
 
-# 🚀 Possíveis evoluções
+# 📂 Dados
 
-O projeto pode ser expandido futuramente com:
+A base contém **10.000 transações sintéticas** e foi criada exclusivamente para fins educacionais e demonstração de competências.
 
-- dashboard interativo;
-- Power BI;
-- análise temporal de vendas;
-- crescimento mensal;
-- comparação entre períodos;
-- margem de lucro;
-- custos e rentabilidade;
-- previsão de vendas;
-- identificação de tendências;
-- banco de dados SQL;
-- automação de atualização dos indicadores.
-
----
-
-# 🎓 Aprendizados
-
-O desenvolvimento deste projeto permitiu aplicar conceitos de programação e análise de dados em um cenário próximo de uma situação comercial real.
-
-Além do processamento técnico, o projeto trabalha uma habilidade importante para análise de dados: **transformar números em informações capazes de apoiar decisões de negócio**.
+Nenhuma informação representa vendas ou clientes reais.
 
 ---
 
@@ -325,8 +307,12 @@ Além do processamento técnico, o projeto trabalha uma habilidade importante pa
 
 **Kauã Rafael**
 
-Projeto desenvolvido para estudo, prática e construção de portfólio profissional na área de **Dados e Tecnologia**.
+Projeto desenvolvido para construção de portfólio profissional em **Análise de Dados e Tecnologia**.
+
+### 🔗 Projeto online
+
+[📊 Acessar Sales Analytics Dashboard](https://kaua-sales-analytics.streamlit.app)
 
 ---
 
-⭐ Se este projeto foi útil como referência, considere deixar uma estrela no repositório.
+⭐ Se este projeto foi útil como referência, considere deixar uma estrela.
