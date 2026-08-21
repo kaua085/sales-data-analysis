@@ -37,4 +37,49 @@ sales-data-analysis/
 ├── analise.py
 ├── requirements.txt
 ├── README.md
-└── LICENSE
+└── LICENSE 
+```
+## 📊 Resultados da Análise
+
+A análise dos dados permitiu identificar os principais indicadores de desempenho das vendas, incluindo faturamento, comportamento dos produtos, categorias e distribuição geográfica da receita.
+
+### 🏆 Produtos com maior faturamento
+
+![Top produtos por faturamento](graficos/top_produtos.png)
+
+### 📦 Receita por categoria
+
+![Receita por categoria](graficos/receita_por_categoria.png)
+
+### 🌎 Receita por cidade
+
+![Receita por cidade](graficos/receita_por_cidade.png)
+
+## 💡 Principais Insights
+
+- Notebooks representam a maior parcela do faturamento da base analisada.
+- Monitores aparecem como o segundo produto de maior impacto na receita.
+- A análise por categoria permite identificar quais segmentos concentram maior valor de vendas.
+- A distribuição por cidade permite comparar o desempenho comercial entre diferentes localidades.
+## 📊 Resultados da Análise
+
+A análise dos dados permitiu identificar os principais indicadores de desempenho das vendas, incluindo faturamento, comportamento dos produtos, categorias e distribuição geográfica da receita.
+
+### 🏆 Produtos com maior faturamento
+
+![Top produtos por faturamento](graficos/top_produtos.png)
+
+### 📦 Receita por categoria
+
+![Receita por categoria](graficos/receita_por_categoria.png)
+
+### 🌎 Receita por cidade
+
+![Receita por cidade](graficos/receita_por_cidade.png)
+
+## 💡 Principais Insights
+
+- Notebooks representam a maior parcela do faturamento da base analisada.
+- Monitores aparecem como o segundo produto de maior impacto na receita.
+- A análise por categoria permite identificar quais segmentos concentram maior valor de vendas.
+- A distribuição por cidade permite comparar o desempenho comercial entre diferentes localidades.
