@@ -1,28 +1,169 @@
 from pathlib import Path
 import pandas as pd
+import matplotlib.pyplot as plt
 
+# Caminhos do projeto
 BASE = Path(__file__).parent
-df = pd.read_csv(BASE / "data" / "sales.csv", parse_dates=["date"])
-df["revenue"] = df["quantity"] * df["unit_price"]
+DATA = BASE / "dados" / "vendas.csv"
+OUTPUT = BASE / "saida"
+GRAFICOS = BASE / "graficos"
+
+OUTPUT.mkdir(exist_ok=True)
+GRAFICOS.mkdir(exist_ok=True)
+
+# Carregar dados
+df = pd.read_csv(DATA, parse_dates=["data"])
+
+# Calcular receita
+df["receita"] = df["quantidade"] * df["preco_unitario"]
+
+# =========================
+# KPIs
+# =========================
+
+faturamento_total = df["receita"].sum()
+
+ticket_medio = (
+    df.groupby("id_do_pedido")["receita"]
+    .sum()
+    .mean()
+)
+
+pedidos_unicos = df["id_do_pedido"].nunique()
 
 print("=== KPIs ===")
-print(f"Faturamento total: R$ {df['revenue'].sum():,.2f}")
-print(f"Ticket médio: R$ {df.groupby('order_id')['revenue'].sum().mean():,.2f}")
-print(f"Pedidos únicos: {df['order_id'].nunique()}")
+print(f"Faturamento total: R$ {faturamento_total:,.2f}")
+print(f"Ticket médio: R$ {ticket_medio:,.2f}")
+print(f"Pedidos únicos: {pedidos_unicos}")
 
-by_product = df.groupby("product", as_index=False).agg(
-    quantity=("quantity","sum"),
-    revenue=("revenue","sum")
-).sort_values("revenue", ascending=False)
+# =========================
+# ANÁLISES
+# =========================
 
-by_category = df.groupby("category", as_index=False)["revenue"].sum().sort_values("revenue", ascending=False)
-by_city = df.groupby("city", as_index=False)["revenue"].sum().sort_values("revenue", ascending=False)
+por_produto = (
+    df.groupby("produto", as_index=False)
+    .agg(
+        quantidade=("quantidade", "sum"),
+        receita=("receita", "sum")
+    )
+    .sort_values("receita", ascending=False)
+)
 
-out = BASE / "output"
-out.mkdir(exist_ok=True)
-by_product.to_csv(out / "sales_by_product.csv", index=False)
-by_category.to_csv(out / "sales_by_category.csv", index=False)
-by_city.to_csv(out / "sales_by_city.csv", index=False)
+por_categoria = (
+    df.groupby("categoria", as_index=False)["receita"]
+    .sum()
+    .sort_values("receita", ascending=False)
+)
+
+por_cidade = (
+    df.groupby("cidade", as_index=False)["receita"]
+    .sum()
+    .sort_values("receita", ascending=False)
+)
+
+# =========================
+# EXPORTAR RELATÓRIOS
+# =========================
+
+por_produto.to_csv(
+    OUTPUT / "vendas_por_produto.csv",
+    index=False
+)
+
+por_categoria.to_csv(
+    OUTPUT / "vendas_por_categoria.csv",
+    index=False
+)
+
+por_cidade.to_csv(
+    OUTPUT / "vendas_por_cidade.csv",
+    index=False
+)
+
+# =========================
+# GRÁFICO 1
+# Receita por categoria
+# =========================
+
+plt.figure(figsize=(10, 6))
+
+plt.bar(
+    por_categoria["categoria"],
+    por_categoria["receita"]
+)
+
+plt.title("Receita por Categoria")
+plt.xlabel("Categoria")
+plt.ylabel("Receita (R$)")
+plt.xticks(rotation=30)
+plt.tight_layout()
+
+plt.savefig(
+    GRAFICOS / "receita_por_categoria.png",
+    dpi=200
+)
+
+plt.close()
+
+# =========================
+# GRÁFICO 2
+# Top produtos
+# =========================
+
+top_produtos = por_produto.head(10)
+
+plt.figure(figsize=(10, 6))
+
+plt.barh(
+    top_produtos["produto"],
+    top_produtos["receita"]
+)
+
+plt.title("Top 10 Produtos por Faturamento")
+plt.xlabel("Receita (R$)")
+plt.ylabel("Produto")
+plt.gca().invert_yaxis()
+plt.tight_layout()
+
+plt.savefig(
+    GRAFICOS / "top_produtos.png",
+    dpi=200
+)
+
+plt.close()
+
+# =========================
+# GRÁFICO 3
+# Receita por cidade
+# =========================
+
+plt.figure(figsize=(10, 6))
+
+plt.bar(
+    por_cidade["cidade"],
+    por_cidade["receita"]
+)
+
+plt.title("Receita por Cidade")
+plt.xlabel("Cidade")
+plt.ylabel("Receita (R$)")
+plt.xticks(rotation=30)
+plt.tight_layout()
+
+plt.savefig(
+    GRAFICOS / "receita_por_cidade.png",
+    dpi=200
+)
+
+plt.close()
+
+# =========================
+# RESULTADO
+# =========================
 
 print("\nTop 5 produtos por receita:")
-print(by_product.head(5).to_string(index=False))
+print(por_produto.head(5).to_string(index=False))
+
+print("\nAnálise concluída com sucesso.")
+print(f"Relatórios salvos em: {OUTPUT}")
+print(f"Gráficos salvos em: {GRAFICOS}")
