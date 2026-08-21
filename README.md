@@ -48,6 +48,27 @@ sales-data-analysis/
 ├── README.md
 └── LICENSE 
 ```
+## 📈 Principais resultados
+
+| Indicador | Resultado |
+|---|---:|
+| 💰 Faturamento total | R$ 98.395,00 |
+| 🧾 Ticket médio | R$ 1.639,92 |
+| 🛒 Pedidos analisados | 60 |
+| 🏆 Produto líder em receita | Notebook |
+| 💻 Receita com notebooks | R$ 60.800,00 |
+| 📦 Notebooks vendidos | 19 |
+
+### 💡 Insights de negócio
+
+A análise revelou forte concentração do faturamento na categoria de produtos eletrônicos, com destaque para os notebooks.
+
+Somente os notebooks foram responsáveis por aproximadamente **61,8% do faturamento total**, indicando que esse produto possui grande impacto sobre o desempenho comercial da base analisada.
+
+O ticket médio de **R$ 1.639,92** também demonstra a influência de produtos de maior valor no comportamento da receita.
+
+Esses resultados podem apoiar decisões relacionadas a estoque, estratégia comercial, acompanhamento de produtos de maior relevância e planejamento de vendas.
+
 ## 📊 Resultados da Análise
 
 A análise dos dados permitiu identificar os principais indicadores de desempenho das vendas, incluindo faturamento, comportamento dos produtos, categorias e distribuição geográfica da receita.
