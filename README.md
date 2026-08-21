@@ -1,22 +1,40 @@
-# Análise de Vendas — Python
+# 📊 Sales Data Analysis — Python
 
-Projeto de análise de dados com base fictícia de vendas.
+Projeto de análise de dados desenvolvido para simular um cenário de vendas e transformar dados brutos em informações úteis para tomada de decisão.
 
-## Indicadores
-- Faturamento total
-- Ticket médio
-- Produto mais vendido
-- Receita por categoria
-- Receita por cidade
-- Top produtos
+O objetivo é demonstrar habilidades práticas em **Python, análise de dados, tratamento de informações e geração de indicadores de negócio (KPIs)**.
 
-## Executar
-```bash
-pip install -r requirements.txt
-python analysis.py
-```
+## 🎯 Objetivo
 
-O script gera relatórios CSV na pasta `output/`.
+Analisar uma base fictícia de vendas para identificar desempenho comercial, produtos de maior relevância e distribuição da receita.
 
-## Competências demonstradas
-Python, pandas, análise exploratória, KPIs, limpeza e agregação de dados.
+## 🛠️ Tecnologias utilizadas
+
+- Python
+- Pandas
+- CSV
+- Git
+- GitHub
+
+## 📈 Indicadores analisados
+
+O projeto calcula automaticamente:
+
+- 💰 Faturamento total
+- 🧾 Ticket médio
+- 🏆 Produto mais vendido
+- 📦 Ranking de produtos
+- 🗂️ Receita por categoria
+- 🌎 Receita por cidade
+
+## 📁 Estrutura do projeto
+
+```text
+sales-data-analysis/
+│
+├── data/
+│   └── vendas.csv
+├── analise.py
+├── requirements.txt
+├── README.md
+└── LICENSE
