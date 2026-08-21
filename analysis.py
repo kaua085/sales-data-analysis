@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 
 # Caminhos do projeto
 BASE = Path(__file__).parent
-DATA = BASE / "dados" / "vendas.csv"
+DATA = BASE / "data" / "sales.csv"
 OUTPUT = BASE / "saida"
 GRAFICOS = BASE / "graficos"
 
@@ -12,10 +12,10 @@ OUTPUT.mkdir(exist_ok=True)
 GRAFICOS.mkdir(exist_ok=True)
 
 # Carregar dados
-df = pd.read_csv(DATA, parse_dates=["data"])
+df = pd.read_csv(DATA, parse_dates=["date"])
 
 # Calcular receita
-df["receita"] = df["quantidade"] * df["preco_unitario"]
+df["receita"] = df["quantity"] * df["unit_price"]
 
 # =========================
 # KPIs
@@ -24,12 +24,12 @@ df["receita"] = df["quantidade"] * df["preco_unitario"]
 faturamento_total = df["receita"].sum()
 
 ticket_medio = (
-    df.groupby("id_do_pedido")["receita"]
+    df.groupby("order_id")["receita"]
     .sum()
     .mean()
 )
 
-pedidos_unicos = df["id_do_pedido"].nunique()
+pedidos_unicos = df["order_id"].nunique()
 
 print("=== KPIs ===")
 print(f"Faturamento total: R$ {faturamento_total:,.2f}")
@@ -41,22 +41,22 @@ print(f"Pedidos únicos: {pedidos_unicos}")
 # =========================
 
 por_produto = (
-    df.groupby("produto", as_index=False)
+    df.groupby("product", as_index=False)
     .agg(
-        quantidade=("quantidade", "sum"),
+        quantidade=("quantity", "sum"),
         receita=("receita", "sum")
     )
     .sort_values("receita", ascending=False)
 )
 
 por_categoria = (
-    df.groupby("categoria", as_index=False)["receita"]
+    df.groupby("category", as_index=False)["receita"]
     .sum()
     .sort_values("receita", ascending=False)
 )
 
 por_cidade = (
-    df.groupby("cidade", as_index=False)["receita"]
+    df.groupby("city", as_index=False)["receita"]
     .sum()
     .sort_values("receita", ascending=False)
 )
@@ -86,9 +86,8 @@ por_cidade.to_csv(
 # =========================
 
 plt.figure(figsize=(10, 6))
-
 plt.bar(
-    por_categoria["categoria"],
+    por_categoria["category"],
     por_categoria["receita"]
 )
 
@@ -113,9 +112,8 @@ plt.close()
 top_produtos = por_produto.head(10)
 
 plt.figure(figsize=(10, 6))
-
 plt.barh(
-    top_produtos["produto"],
+    top_produtos["product"],
     top_produtos["receita"]
 )
 
@@ -138,9 +136,8 @@ plt.close()
 # =========================
 
 plt.figure(figsize=(10, 6))
-
 plt.bar(
-    por_cidade["cidade"],
+    por_cidade["city"],
     por_cidade["receita"]
 )
 
