@@ -61,3 +61,24 @@ A análise dos dados permitiu identificar os principais indicadores de desempenh
 - Monitores aparecem como o segundo produto de maior impacto na receita.
 - A análise por categoria permite identificar quais segmentos concentram maior valor de vendas.
 - A distribuição por cidade permite comparar o desempenho comercial entre diferentes localidades.
+
+## 🚀 Competências demonstradas
+
+Este projeto demonstra conhecimentos práticos em:
+
+- Manipulação e tratamento de dados com Python e Pandas
+- Leitura e análise de arquivos CSV
+- Criação e análise de indicadores de negócio (KPIs)
+- Cálculo de faturamento e ticket médio
+- Análise de desempenho por produto, categoria e cidade
+- Agrupamento, ordenação e transformação de dados
+- Visualização de dados com Matplotlib
+- Automação da geração de relatórios e gráficos
+- Versionamento de código com Git e GitHub
+
+## ▶️ Como executar o projeto
+
+Clone o repositório e instale as dependências:
+
+```bash
+pip install -r requirements.txt
