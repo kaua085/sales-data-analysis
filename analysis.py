@@ -1,10 +1,8 @@
 from pathlib import Path
+
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# ============================================================
-# CAMINHOS
-# ============================================================
 
 BASE = Path(__file__).parent
 DATA = BASE / "data" / "sales.csv"
@@ -14,356 +12,422 @@ GRAFICOS = BASE / "graficos"
 OUTPUT.mkdir(exist_ok=True)
 GRAFICOS.mkdir(exist_ok=True)
 
-# ============================================================
-# CARREGAMENTO E TRATAMENTO
-# ============================================================
 
-df = pd.read_csv(DATA)
+# =========================================================
+# CARREGAMENTO
+# =========================================================
 
-# Compatibilidade com nomes de colunas
-df.columns = df.columns.str.strip().str.lower()
+df = pd.read_csv(
+    DATA,
+    parse_dates=["date"]
+)
 
-if "date" in df.columns:
-    df["date"] = pd.to_datetime(df["date"])
-elif "data" in df.columns:
-    df.rename(columns={"data": "date"}, inplace=True)
-    df["date"] = pd.to_datetime(df["date"])
 
-# Receita
-df["receita"] = df["quantity"] * df["unit_price"]
+# =========================================================
+# TRATAMENTO
+# =========================================================
 
-# ============================================================
+df.columns = (
+    df.columns
+    .str.strip()
+    .str.lower()
+)
+
+df = df.drop_duplicates()
+
+df["quantity"] = pd.to_numeric(
+    df["quantity"],
+    errors="coerce"
+)
+
+df["unit_price"] = pd.to_numeric(
+    df["unit_price"],
+    errors="coerce"
+)
+
+df["discount"] = pd.to_numeric(
+    df["discount"],
+    errors="coerce"
+).fillna(0)
+
+df = df.dropna(
+    subset=[
+        "date",
+        "product",
+        "quantity",
+        "unit_price"
+    ]
+)
+
+
+# =========================================================
+# ENGENHARIA DE ATRIBUTOS
+# =========================================================
+
+df["receita_bruta"] = (
+    df["quantity"] *
+    df["unit_price"]
+)
+
+df["valor_desconto"] = (
+    df["receita_bruta"] *
+    df["discount"]
+)
+
+df["receita"] = (
+    df["receita_bruta"] -
+    df["valor_desconto"]
+)
+
+df["ano"] = df["date"].dt.year
+df["mes"] = df["date"].dt.month
+
+df["ano_mes"] = (
+    df["date"]
+    .dt.to_period("M")
+    .astype(str)
+)
+
+
+# =========================================================
 # KPIs
-# ============================================================
+# =========================================================
 
 faturamento_total = df["receita"].sum()
-pedidos = len(df)
-ticket_medio = faturamento_total / pedidos if pedidos else 0
 
-quantidade_total = df["quantity"].sum()
+faturamento_bruto = df["receita_bruta"].sum()
 
-produto_receita = (
-    df.groupby("product", as_index=False)
+descontos_total = df["valor_desconto"].sum()
+
+pedidos_unicos = df["order_id"].nunique()
+
+itens_vendidos = df["quantity"].sum()
+
+ticket_medio = (
+    faturamento_total / pedidos_unicos
+    if pedidos_unicos > 0
+    else 0
+)
+
+
+# =========================================================
+# PRODUTOS
+# =========================================================
+
+produtos = (
+    df.groupby("product")
     .agg(
         quantidade=("quantity", "sum"),
-        receita=("receita", "sum")
+        receita=("receita", "sum"),
     )
-    .sort_values("receita", ascending=False)
-)
-
-produto_lider = produto_receita.iloc[0]["product"]
-receita_produto_lider = produto_receita.iloc[0]["receita"]
-
-participacao_lider = (
-    receita_produto_lider / faturamento_total * 100
-    if faturamento_total else 0
-)
-
-categoria_receita = (
-    df.groupby("category", as_index=False)["receita"]
-    .sum()
-    .sort_values("receita", ascending=False)
-)
-
-cidade_receita = (
-    df.groupby("city", as_index=False)["receita"]
-    .sum()
-    .sort_values("receita", ascending=False)
-)
-
-categoria_lider = categoria_receita.iloc[0]["category"]
-cidade_lider = cidade_receita.iloc[0]["city"]
-
-# ============================================================
-# ANÁLISE TEMPORAL
-# ============================================================
-
-df["mes"] = df["date"].dt.to_period("M").astype(str)
-
-receita_mensal = (
-    df.groupby("mes", as_index=False)["receita"]
-    .sum()
-    .sort_values("mes")
-)
-
-if len(receita_mensal) > 1:
-    receita_mensal["crescimento_pct"] = (
-        receita_mensal["receita"].pct_change() * 100
+    .sort_values(
+        "receita",
+        ascending=False
     )
-else:
-    receita_mensal["crescimento_pct"] = 0
+)
 
-melhor_mes = receita_mensal.loc[
-    receita_mensal["receita"].idxmax(), "mes"
+produto_lider = produtos.index[0]
+
+
+# =========================================================
+# CATEGORIAS
+# =========================================================
+
+categorias = (
+    df.groupby("category")["receita"]
+    .sum()
+    .sort_values(ascending=False)
+)
+
+
+# =========================================================
+# CIDADES
+# =========================================================
+
+cidades = (
+    df.groupby("city")["receita"]
+    .sum()
+    .sort_values(ascending=False)
+)
+
+
+# =========================================================
+# CANAIS
+# =========================================================
+
+canais = (
+    df.groupby("channel")["receita"]
+    .sum()
+    .sort_values(ascending=False)
+)
+
+
+# =========================================================
+# PAGAMENTOS
+# =========================================================
+
+pagamentos = (
+    df.groupby("payment_method")["receita"]
+    .sum()
+    .sort_values(ascending=False)
+)
+
+
+# =========================================================
+# ANÁLISE MENSAL
+# =========================================================
+
+mensal = (
+    df.groupby("ano_mes")["receita"]
+    .sum()
+    .reset_index()
+)
+
+mensal["crescimento_pct"] = (
+    mensal["receita"]
+    .pct_change() *
+    100
+)
+
+melhor_mes = mensal.loc[
+    mensal["receita"].idxmax()
 ]
 
-# ============================================================
-# SALVAR TABELAS
-# ============================================================
 
-produto_receita.to_csv(
-    OUTPUT / "ranking_produtos.csv",
+# =========================================================
+# SALVAR RELATÓRIOS
+# =========================================================
+
+produtos.to_csv(
+    OUTPUT / "produtos.csv"
+)
+
+categorias.to_csv(
+    OUTPUT / "categorias.csv"
+)
+
+cidades.to_csv(
+    OUTPUT / "cidades.csv"
+)
+
+canais.to_csv(
+    OUTPUT / "canais.csv"
+)
+
+pagamentos.to_csv(
+    OUTPUT / "pagamentos.csv"
+)
+
+mensal.to_csv(
+    OUTPUT / "evolucao_mensal.csv",
     index=False
 )
 
-categoria_receita.to_csv(
-    OUTPUT / "receita_categorias.csv",
-    index=False
-)
 
-cidade_receita.to_csv(
-    OUTPUT / "receita_cidades.csv",
-    index=False
-)
-
-receita_mensal.to_csv(
-    OUTPUT / "receita_mensal.csv",
-    index=False
-)
-
-resumo_kpis = pd.DataFrame({
-    "indicador": [
-        "Faturamento total",
-        "Ticket médio",
-        "Pedidos",
-        "Itens vendidos",
-        "Produto líder",
-        "Categoria líder",
-        "Cidade líder",
-        "Melhor mês"
-    ],
-    "resultado": [
-        round(faturamento_total, 2),
-        round(ticket_medio, 2),
-        pedidos,
-        quantidade_total,
-        produto_lider,
-        categoria_lider,
-        cidade_lider,
-        melhor_mes
-    ]
-})
-
-resumo_kpis.to_csv(
-    OUTPUT / "resumo_kpis.csv",
-    index=False
-)
-
-# ============================================================
-# GRÁFICO 1 — TOP PRODUTOS
-# ============================================================
-
-top10 = produto_receita.head(10).sort_values("receita")
+# =========================================================
+# GRÁFICO - PRODUTOS
+# =========================================================
 
 plt.figure(figsize=(10, 6))
-plt.barh(top10["product"], top10["receita"])
-plt.title("Top 10 Produtos por Faturamento")
-plt.xlabel("Receita (R$)")
-plt.ylabel("Produto")
+
+produtos.head(10)["receita"].plot(
+    kind="bar"
+)
+
+plt.title(
+    "Top 10 Produtos por Receita"
+)
+
+plt.xlabel("Produto")
+plt.ylabel("Receita (R$)")
+
+plt.xticks(
+    rotation=45,
+    ha="right"
+)
+
 plt.tight_layout()
+
 plt.savefig(
     GRAFICOS / "top_produtos.png",
-    dpi=160,
-    bbox_inches="tight"
+    dpi=150
 )
+
 plt.close()
 
-# ============================================================
-# GRÁFICO 2 — RECEITA POR CATEGORIA
-# ============================================================
 
-plt.figure(figsize=(9, 5))
-plt.bar(
-    categoria_receita["category"],
-    categoria_receita["receita"]
+# =========================================================
+# GRÁFICO - CATEGORIAS
+# =========================================================
+
+plt.figure(figsize=(8, 5))
+
+categorias.plot(
+    kind="bar"
 )
-plt.title("Receita por Categoria")
+
+plt.title(
+    "Receita por Categoria"
+)
+
 plt.xlabel("Categoria")
 plt.ylabel("Receita (R$)")
-plt.xticks(rotation=30)
+
+plt.xticks(
+    rotation=45,
+    ha="right"
+)
+
 plt.tight_layout()
+
 plt.savefig(
     GRAFICOS / "receita_por_categoria.png",
-    dpi=160,
-    bbox_inches="tight"
+    dpi=150
 )
+
 plt.close()
 
-# ============================================================
-# GRÁFICO 3 — RECEITA POR CIDADE
-# ============================================================
+
+# =========================================================
+# GRÁFICO - CIDADES
+# =========================================================
 
 plt.figure(figsize=(9, 5))
-plt.bar(
-    cidade_receita["city"],
-    cidade_receita["receita"]
+
+cidades.plot(
+    kind="bar"
 )
-plt.title("Receita por Cidade")
+
+plt.title(
+    "Receita por Cidade"
+)
+
 plt.xlabel("Cidade")
 plt.ylabel("Receita (R$)")
-plt.xticks(rotation=30)
+
+plt.xticks(
+    rotation=45,
+    ha="right"
+)
+
 plt.tight_layout()
+
 plt.savefig(
     GRAFICOS / "receita_por_cidade.png",
-    dpi=160,
-    bbox_inches="tight"
+    dpi=150
 )
+
 plt.close()
 
-# ============================================================
-# GRÁFICO 4 — EVOLUÇÃO MENSAL
-# ============================================================
 
-plt.figure(figsize=(10, 5))
+# =========================================================
+# GRÁFICO - EVOLUÇÃO MENSAL
+# =========================================================
+
+plt.figure(figsize=(12, 6))
+
 plt.plot(
-    receita_mensal["mes"],
-    receita_mensal["receita"],
+    mensal["ano_mes"],
+    mensal["receita"],
     marker="o"
 )
-plt.title("Evolução Mensal do Faturamento")
+
+plt.title(
+    "Evolução Mensal do Faturamento"
+)
+
 plt.xlabel("Mês")
 plt.ylabel("Receita (R$)")
-plt.xticks(rotation=45)
-plt.grid(alpha=0.25)
+
+plt.xticks(
+    rotation=45,
+    ha="right"
+)
+
 plt.tight_layout()
+
 plt.savefig(
     GRAFICOS / "evolucao_mensal.png",
-    dpi=160,
-    bbox_inches="tight"
+    dpi=150
 )
+
 plt.close()
 
-# ============================================================
-# GRÁFICO 5 — QUANTIDADE POR PRODUTO
-# ============================================================
 
-top_quantidade = (
-    produto_receita
-    .sort_values("quantidade", ascending=False)
-    .head(10)
-    .sort_values("quantidade")
-)
+# =========================================================
+# RESULTADO TXT
+# =========================================================
 
-plt.figure(figsize=(10, 6))
-plt.barh(
-    top_quantidade["product"],
-    top_quantidade["quantidade"]
-)
-plt.title("Produtos Mais Vendidos por Quantidade")
-plt.xlabel("Quantidade")
-plt.ylabel("Produto")
-plt.tight_layout()
-plt.savefig(
-    GRAFICOS / "quantidade_por_produto.png",
-    dpi=160,
-    bbox_inches="tight"
-)
-plt.close()
+resultado = f"""
+=== SALES DATA ANALYSIS ===
 
-# ============================================================
-# GRÁFICO 6 — PARTICIPAÇÃO DOS PRODUTOS
-# ============================================================
+Registros analisados: {len(df):,}
 
-participacao = produto_receita.head(6).copy()
+=== KPIs ===
 
-outros = produto_receita.iloc[6:]["receita"].sum()
+Faturamento bruto:
+R$ {faturamento_bruto:,.2f}
 
-if outros > 0:
-    participacao.loc[len(participacao)] = [
-        "Outros",
-        produto_receita.iloc[6:]["quantidade"].sum(),
-        outros
-    ]
+Descontos concedidos:
+R$ {descontos_total:,.2f}
 
-plt.figure(figsize=(8, 8))
-plt.pie(
-    participacao["receita"],
-    labels=participacao["product"],
-    autopct="%1.1f%%",
-    startangle=90
-)
-plt.title("Participação dos Produtos no Faturamento")
-plt.tight_layout()
-plt.savefig(
-    GRAFICOS / "participacao_produtos.png",
-    dpi=160,
-    bbox_inches="tight"
-)
-plt.close()
+Faturamento líquido:
+R$ {faturamento_total:,.2f}
 
-# ============================================================
-# RELATÓRIO TXT
-# ============================================================
+Ticket médio:
+R$ {ticket_medio:,.2f}
 
-relatorio = f"""
-============================================
-SALES DATA ANALYSIS
-============================================
+Pedidos únicos:
+{pedidos_unicos:,}
 
-KPIs
+Itens vendidos:
+{itens_vendidos:,}
 
-Faturamento total: R$ {faturamento_total:,.2f}
-Ticket médio: R$ {ticket_medio:,.2f}
-Pedidos analisados: {pedidos}
-Itens vendidos: {quantidade_total}
+Produto líder:
+{produto_lider}
 
-Produto líder: {produto_lider}
-Receita do produto líder: R$ {receita_produto_lider:,.2f}
-Participação no faturamento: {participacao_lider:.2f}%
+Melhor mês:
+{melhor_mes["ano_mes"]}
 
-Categoria líder: {categoria_lider}
-Cidade líder: {cidade_lider}
-Melhor mês: {melhor_mes}
+Receita do melhor mês:
+R$ {melhor_mes["receita"]:,.2f}
 
-============================================
-TOP 5 PRODUTOS
-============================================
 
-{produto_receita.head(5).to_string(index=False)}
+=== TOP 5 PRODUTOS ===
 
-============================================
-INSIGHTS
-============================================
+{produtos.head(5).to_string()}
 
-O produto {produto_lider} possui a maior participação
-no faturamento da base analisada.
 
-A categoria com maior faturamento é {categoria_lider}.
+=== TOP CATEGORIAS ===
 
-A cidade com melhor desempenho é {cidade_lider}.
+{categorias.to_string()}
 
-O período com maior faturamento foi {melhor_mes}.
 
-A concentração de receita nos principais produtos
-deve ser considerada no planejamento comercial,
-estoque e estratégia de vendas.
+=== RECEITA POR CIDADE ===
+
+{cidades.to_string()}
+
+
+=== RECEITA POR CANAL ===
+
+{canais.to_string()}
+
+
+=== FORMAS DE PAGAMENTO ===
+
+{pagamentos.to_string()}
 """
 
 with open(
-    OUTPUT / "resultado.txt",
+    BASE / "resultado.txt",
     "w",
     encoding="utf-8"
 ) as arquivo:
-    arquivo.write(relatorio)
 
-# ============================================================
-# TERMINAL
-# ============================================================
+    arquivo.write(resultado)
 
-print("\n======================================")
-print("📊 SALES DATA ANALYSIS")
-print("======================================")
 
-print(f"\n💰 Faturamento: R$ {faturamento_total:,.2f}")
-print(f"🎫 Ticket médio: R$ {ticket_medio:,.2f}")
-print(f"🧾 Pedidos: {pedidos}")
-print(f"📦 Itens vendidos: {quantidade_total}")
-
-print(f"\n🏆 Produto líder: {produto_lider}")
-print(f"📊 Participação: {participacao_lider:.2f}%")
-print(f"🏷️ Categoria líder: {categoria_lider}")
-print(f"🌎 Cidade líder: {cidade_lider}")
-print(f"📅 Melhor mês: {melhor_mes}")
+print(resultado)
 
 print("\n✅ Análise concluída com sucesso.")
 print(f"📁 Relatórios: {OUTPUT}")

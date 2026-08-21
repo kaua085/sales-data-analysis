@@ -1,15 +1,13 @@
 from pathlib import Path
 
 import pandas as pd
-import plotly.express as px
 import streamlit as st
+import plotly.express as px
 
-# ============================================================
-# CONFIGURAÇÃO
-# ============================================================
 
 BASE = Path(__file__).parent
 DATA = BASE / "data" / "sales.csv"
+
 
 st.set_page_config(
     page_title="Sales Analytics Dashboard",
@@ -17,28 +15,32 @@ st.set_page_config(
     layout="wide",
 )
 
-# ============================================================
-# DADOS
-# ============================================================
 
 @st.cache_data
 def carregar_dados():
+
     df = pd.read_csv(DATA)
 
-    df.columns = (
-        df.columns
-        .str.strip()
-        .str.lower()
+    df["date"] = pd.to_datetime(
+        df["date"]
     )
 
-    df["date"] = pd.to_datetime(df["date"])
-
-    df["receita"] = (
+    df["receita_bruta"] = (
         df["quantity"] *
         df["unit_price"]
     )
 
-    df["mes"] = (
+    df["valor_desconto"] = (
+        df["receita_bruta"] *
+        df["discount"]
+    )
+
+    df["receita"] = (
+        df["receita_bruta"] -
+        df["valor_desconto"]
+    )
+
+    df["ano_mes"] = (
         df["date"]
         .dt.to_period("M")
         .astype(str)
@@ -49,393 +51,497 @@ def carregar_dados():
 
 df = carregar_dados()
 
-# ============================================================
+
+# =========================================================
 # CABEÇALHO
-# ============================================================
+# =========================================================
 
 st.title("📊 Painel de Análise de Vendas")
 
 st.caption(
-    "Dashboard interativo para acompanhamento de "
-    "indicadores comerciais e análise de desempenho."
+    "Dashboard interativo para análise de desempenho "
+    "comercial, produtos, mercados e comportamento das vendas."
 )
 
-# ============================================================
-# FILTROS
-# ============================================================
+
+# =========================================================
+# SIDEBAR
+# =========================================================
 
 st.sidebar.header("🔎 Filtros")
 
-categorias = sorted(df["category"].dropna().unique())
-cidades = sorted(df["city"].dropna().unique())
-produtos = sorted(df["product"].dropna().unique())
 
-categorias_selecionadas = st.sidebar.multiselect(
+categorias = st.sidebar.multiselect(
     "Categoria",
-    categorias,
-    default=categorias,
+    sorted(df["category"].unique()),
+    default=sorted(df["category"].unique()),
 )
 
-cidades_selecionadas = st.sidebar.multiselect(
+
+cidades = st.sidebar.multiselect(
     "Cidade",
-    cidades,
-    default=cidades,
+    sorted(df["city"].unique()),
+    default=sorted(df["city"].unique()),
 )
 
-produtos_selecionados = st.sidebar.multiselect(
+
+produtos = st.sidebar.multiselect(
     "Produto",
-    produtos,
-    default=produtos,
+    sorted(df["product"].unique()),
+    default=sorted(df["product"].unique()),
 )
 
-data_minima = df["date"].min().date()
-data_maxima = df["date"].max().date()
+
+canais = st.sidebar.multiselect(
+    "Canal de venda",
+    sorted(df["channel"].unique()),
+    default=sorted(df["channel"].unique()),
+)
+
+
+pagamentos = st.sidebar.multiselect(
+    "Forma de pagamento",
+    sorted(df["payment_method"].unique()),
+    default=sorted(
+        df["payment_method"].unique()
+    ),
+)
+
+
+data_min = df["date"].min().date()
+data_max = df["date"].max().date()
+
 
 periodo = st.sidebar.date_input(
     "Período",
-    value=(data_minima, data_maxima),
-    min_value=data_minima,
-    max_value=data_maxima,
+    value=(data_min, data_max),
+    min_value=data_min,
+    max_value=data_max,
 )
 
-filtrado = df[
-    df["category"].isin(categorias_selecionadas)
-    & df["city"].isin(cidades_selecionadas)
-    & df["product"].isin(produtos_selecionados)
+
+# =========================================================
+# FILTRAGEM
+# =========================================================
+
+df_filtrado = df[
+    df["category"].isin(categorias)
+    & df["city"].isin(cidades)
+    & df["product"].isin(produtos)
+    & df["channel"].isin(canais)
+    & df["payment_method"].isin(pagamentos)
 ].copy()
 
+
 if len(periodo) == 2:
+
     inicio = pd.Timestamp(periodo[0])
     fim = pd.Timestamp(periodo[1])
 
-    filtrado = filtrado[
-        (filtrado["date"] >= inicio)
-        & (filtrado["date"] <= fim)
+    df_filtrado = df_filtrado[
+        (df_filtrado["date"] >= inicio)
+        & (df_filtrado["date"] <= fim)
     ]
 
-if filtrado.empty:
+
+if df_filtrado.empty:
+
     st.warning(
-        "Nenhum registro encontrado com os filtros selecionados."
+        "Nenhum registro encontrado para os filtros selecionados."
     )
+
     st.stop()
 
-# ============================================================
+
+# =========================================================
 # KPIs
-# ============================================================
+# =========================================================
 
-faturamento = filtrado["receita"].sum()
-pedidos = filtrado["order_id"].nunique()
-itens = filtrado["quantity"].sum()
+faturamento = df_filtrado["receita"].sum()
 
-ticket_medio = (
+pedidos = df_filtrado["order_id"].nunique()
+
+itens = df_filtrado["quantity"].sum()
+
+ticket = (
     faturamento / pedidos
-    if pedidos
+    if pedidos > 0
     else 0
 )
 
-ranking_produtos = (
-    filtrado
-    .groupby("product", as_index=False)
-    .agg(
-        quantidade=("quantity", "sum"),
-        receita=("receita", "sum"),
-    )
-    .sort_values("receita", ascending=False)
+produto_lider = (
+    df_filtrado
+    .groupby("product")["receita"]
+    .sum()
+    .idxmax()
 )
 
-produto_lider = ranking_produtos.iloc[0]["product"]
+
+k1, k2, k3, k4, k5 = st.columns(5)
+
+
+k1.metric(
+    "💰 Faturamento",
+    f"R$ {faturamento:,.2f}"
+)
+
+
+k2.metric(
+    "🎫 Ticket médio",
+    f"R$ {ticket:,.2f}"
+)
+
+
+k3.metric(
+    "🧾 Pedidos",
+    f"{pedidos:,}"
+)
+
+
+k4.metric(
+    "📦 Itens vendidos",
+    f"{itens:,}"
+)
+
+
+k5.metric(
+    "🏆 Produto líder",
+    produto_lider
+)
+
+
+st.divider()
+
+
+# =========================================================
+# INSIGHTS AUTOMÁTICOS
+# =========================================================
 
 categoria_lider = (
-    filtrado
+    df_filtrado
     .groupby("category")["receita"]
     .sum()
     .idxmax()
 )
 
+
 cidade_lider = (
-    filtrado
+    df_filtrado
     .groupby("city")["receita"]
     .sum()
     .idxmax()
 )
 
-# ============================================================
-# CARDS
-# ============================================================
 
-c1, c2, c3, c4, c5 = st.columns(5)
-
-c1.metric(
-    "💰 Faturamento",
-    f"R$ {faturamento:,.2f}",
+receita_produto = (
+    df_filtrado
+    .groupby("product")["receita"]
+    .sum()
 )
 
-c2.metric(
-    "🎫 Ticket médio",
-    f"R$ {ticket_medio:,.2f}",
+
+participacao_lider = (
+    receita_produto.max()
+    / faturamento
+    * 100
 )
 
-c3.metric(
-    "🧾 Pedidos",
-    f"{pedidos}",
-)
-
-c4.metric(
-    "📦 Itens vendidos",
-    f"{int(itens)}",
-)
-
-c5.metric(
-    "🏆 Produto líder",
-    produto_lider,
-)
-
-st.divider()
-
-# ============================================================
-# INSIGHTS RÁPIDOS
-# ============================================================
 
 i1, i2, i3 = st.columns(3)
 
 i1.info(
-    f"🏷️ Categoria com maior receita: **{categoria_lider}**"
+    f"🏷️ Categoria com maior receita: "
+    f"**{categoria_lider}**"
 )
 
 i2.info(
-    f"🌎 Cidade com maior receita: **{cidade_lider}**"
-)
-
-participacao_lider = (
-    ranking_produtos.iloc[0]["receita"] /
-    faturamento *
-    100
+    f"🌎 Cidade com maior receita: "
+    f"**{cidade_lider}**"
 )
 
 i3.info(
     f"📊 {produto_lider} representa "
-    f"**{participacao_lider:.1f}%** da receita"
+    f"**{participacao_lider:.1f}%** da receita."
 )
 
-# ============================================================
-# EVOLUÇÃO DO FATURAMENTO
-# ============================================================
 
-st.subheader("📈 Evolução do faturamento")
+# =========================================================
+# EVOLUÇÃO MENSAL
+# =========================================================
 
-receita_mensal = (
-    filtrado
-    .groupby("mes", as_index=False)["receita"]
+st.subheader(
+    "📈 Evolução do faturamento"
+)
+
+
+mensal = (
+    df_filtrado
+    .groupby("ano_mes", as_index=False)["receita"]
     .sum()
-    .sort_values("mes")
 )
 
-fig_evolucao = px.line(
-    receita_mensal,
-    x="mes",
+
+mensal["crescimento_pct"] = (
+    mensal["receita"]
+    .pct_change()
+    * 100
+)
+
+
+fig_mensal = px.line(
+    mensal,
+    x="ano_mes",
     y="receita",
     markers=True,
+    labels={
+        "ano_mes": "Mês",
+        "receita": "Faturamento (R$)",
+    },
 )
 
-fig_evolucao.update_layout(
-    xaxis_title="Mês",
-    yaxis_title="Receita (R$)",
-)
 
 st.plotly_chart(
-    fig_evolucao,
+    fig_mensal,
     use_container_width=True,
 )
 
-# ============================================================
-# TOP PRODUTOS + CATEGORIAS
-# ============================================================
+
+# =========================================================
+# PRODUTOS + CATEGORIAS
+# =========================================================
 
 col1, col2 = st.columns(2)
 
-top_produtos = (
-    ranking_produtos
-    .head(10)
-    .sort_values("receita")
-)
 
-fig_produtos = px.bar(
-    top_produtos,
-    x="receita",
-    y="product",
-    orientation="h",
-    title="🏆 Top 10 Produtos por Faturamento",
-)
+with col1:
 
-fig_produtos.update_layout(
-    xaxis_title="Receita (R$)",
-    yaxis_title="Produto",
-)
+    st.subheader(
+        "🏆 Produtos por faturamento"
+    )
 
-col1.plotly_chart(
-    fig_produtos,
-    use_container_width=True,
-)
+    ranking_produtos = (
+        df_filtrado
+        .groupby(
+            "product",
+            as_index=False
+        )["receita"]
+        .sum()
+        .sort_values(
+            "receita",
+            ascending=False
+        )
+    )
 
-receita_categoria = (
-    filtrado
-    .groupby("category", as_index=False)["receita"]
-    .sum()
-    .sort_values("receita", ascending=False)
-)
+    fig_produtos = px.bar(
+        ranking_produtos,
+        x="receita",
+        y="product",
+        orientation="h",
+        labels={
+            "product": "Produto",
+            "receita": "Faturamento (R$)",
+        },
+    )
 
-fig_categoria = px.bar(
-    receita_categoria,
-    x="category",
-    y="receita",
-    title="🏷️ Receita por Categoria",
-)
+    fig_produtos.update_layout(
+        yaxis={
+            "categoryorder": "total ascending"
+        }
+    )
 
-fig_categoria.update_layout(
-    xaxis_title="Categoria",
-    yaxis_title="Receita (R$)",
-)
+    st.plotly_chart(
+        fig_produtos,
+        use_container_width=True,
+    )
 
-col2.plotly_chart(
-    fig_categoria,
-    use_container_width=True,
-)
 
-# ============================================================
-# CIDADES + PARTICIPAÇÃO
-# ============================================================
+with col2:
+
+    st.subheader(
+        "🏷️ Receita por categoria"
+    )
+
+    ranking_categoria = (
+        df_filtrado
+        .groupby(
+            "category",
+            as_index=False
+        )["receita"]
+        .sum()
+    )
+
+    fig_categoria = px.pie(
+        ranking_categoria,
+        names="category",
+        values="receita",
+        hole=0.45,
+    )
+
+    st.plotly_chart(
+        fig_categoria,
+        use_container_width=True,
+    )
+
+
+# =========================================================
+# CIDADE + CANAL
+# =========================================================
 
 col3, col4 = st.columns(2)
 
-receita_cidade = (
-    filtrado
-    .groupby("city", as_index=False)["receita"]
+
+with col3:
+
+    st.subheader(
+        "🌎 Faturamento por cidade"
+    )
+
+    ranking_cidades = (
+        df_filtrado
+        .groupby(
+            "city",
+            as_index=False
+        )["receita"]
+        .sum()
+        .sort_values(
+            "receita",
+            ascending=False
+        )
+    )
+
+    fig_cidade = px.bar(
+        ranking_cidades,
+        x="city",
+        y="receita",
+        labels={
+            "city": "Cidade",
+            "receita": "Faturamento (R$)",
+        },
+    )
+
+    st.plotly_chart(
+        fig_cidade,
+        use_container_width=True,
+    )
+
+
+with col4:
+
+    st.subheader(
+        "🛒 Receita por canal"
+    )
+
+    ranking_canais = (
+        df_filtrado
+        .groupby(
+            "channel",
+            as_index=False
+        )["receita"]
+        .sum()
+    )
+
+    fig_canais = px.bar(
+        ranking_canais,
+        x="channel",
+        y="receita",
+        labels={
+            "channel": "Canal",
+            "receita": "Faturamento (R$)",
+        },
+    )
+
+    st.plotly_chart(
+        fig_canais,
+        use_container_width=True,
+    )
+
+
+# =========================================================
+# PAGAMENTOS
+# =========================================================
+
+st.subheader(
+    "💳 Distribuição por forma de pagamento"
+)
+
+
+ranking_pagamentos = (
+    df_filtrado
+    .groupby(
+        "payment_method",
+        as_index=False
+    )["receita"]
     .sum()
-    .sort_values("receita", ascending=False)
 )
 
-fig_cidade = px.bar(
-    receita_cidade,
-    x="city",
-    y="receita",
-    title="🌎 Receita por Cidade",
-)
 
-fig_cidade.update_layout(
-    xaxis_title="Cidade",
-    yaxis_title="Receita (R$)",
-)
-
-col3.plotly_chart(
-    fig_cidade,
-    use_container_width=True,
-)
-
-fig_participacao = px.pie(
-    ranking_produtos.head(8),
-    names="product",
+fig_pagamentos = px.pie(
+    ranking_pagamentos,
+    names="payment_method",
     values="receita",
-    title="📊 Participação dos Produtos na Receita",
     hole=0.45,
 )
 
-col4.plotly_chart(
-    fig_participacao,
-    use_container_width=True,
-)
-
-# ============================================================
-# QUANTIDADE VENDIDA
-# ============================================================
-
-st.subheader("📦 Produtos mais vendidos")
-
-ranking_quantidade = (
-    ranking_produtos
-    .sort_values("quantidade", ascending=False)
-    .head(10)
-)
-
-fig_quantidade = px.bar(
-    ranking_quantidade,
-    x="product",
-    y="quantidade",
-)
-
-fig_quantidade.update_layout(
-    xaxis_title="Produto",
-    yaxis_title="Quantidade vendida",
-)
 
 st.plotly_chart(
-    fig_quantidade,
+    fig_pagamentos,
     use_container_width=True,
 )
 
-# ============================================================
-# RANKING
-# ============================================================
 
-st.subheader("🏅 Ranking de produtos")
+# =========================================================
+# CRESCIMENTO
+# =========================================================
 
-ranking_exibicao = ranking_produtos.copy()
+st.subheader(
+    "📊 Crescimento mensal"
+)
 
-ranking_exibicao["participacao_pct"] = (
-    ranking_exibicao["receita"] /
-    faturamento *
-    100
-).round(2)
 
-ranking_exibicao.columns = [
-    "Produto",
-    "Quantidade",
-    "Receita",
-    "Participação (%)",
-]
+crescimento = mensal.dropna().copy()
+
+
+fig_crescimento = px.bar(
+    crescimento,
+    x="ano_mes",
+    y="crescimento_pct",
+    labels={
+        "ano_mes": "Mês",
+        "crescimento_pct": "Variação (%)",
+    },
+)
+
+
+st.plotly_chart(
+    fig_crescimento,
+    use_container_width=True,
+)
+
+
+# =========================================================
+# TABELA
+# =========================================================
+
+st.subheader(
+    "📋 Dados filtrados"
+)
+
 
 st.dataframe(
-    ranking_exibicao,
+    df_filtrado,
     use_container_width=True,
     hide_index=True,
 )
 
-# ============================================================
-# DADOS DETALHADOS
-# ============================================================
 
-st.subheader("📋 Dados detalhados")
-
-dados_exibicao = filtrado[
-    [
-        "order_id",
-        "date",
-        "product",
-        "category",
-        "quantity",
-        "unit_price",
-        "city",
-        "receita",
-    ]
-].copy()
-
-dados_exibicao = dados_exibicao.sort_values(
-    "date",
-    ascending=False,
-)
-
-st.dataframe(
-    dados_exibicao,
-    use_container_width=True,
-    hide_index=True,
-)
-
-# ============================================================
+# =========================================================
 # DOWNLOAD
-# ============================================================
+# =========================================================
 
-csv = dados_exibicao.to_csv(
+csv = df_filtrado.to_csv(
     index=False
 ).encode("utf-8")
+
 
 st.download_button(
     label="⬇️ Baixar dados filtrados em CSV",
@@ -444,7 +550,9 @@ st.download_button(
     mime="text/csv",
 )
 
+
 st.divider()
+
 
 st.caption(
     "Projeto desenvolvido para portfólio em Análise de Dados."
