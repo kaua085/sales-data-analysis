@@ -1,0 +1,16 @@
+=== KPIs ===
+Faturamento total: R$ 98,395.00
+Ticket médio: R$ 1,639.92
+Pedidos únicos: 60
+
+Top 5 produtos por receita:
+ product  quantidade  receita
+Notebook          19  60800.0
+ Monitor          22  21560.0
+  Webcam          41   7380.0
+ Headset          19   3990.0
+ Teclado          23   3220.0
+
+Análise concluída com sucesso.
+Relatórios salvos em: /workspaces/sales-data-analysis/saida
+Gráficos salvos em: /workspaces/sales-data-analysis/graficos
