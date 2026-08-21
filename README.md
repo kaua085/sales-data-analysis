@@ -1,5 +1,14 @@
 # 📊 Sales Data Analysis — Python
 
+<p align="center">
+  <img src="https://img.shields.io/badge/Python-3.x-blue?logo=python&logoColor=white">
+  <img src="https://img.shields.io/badge/Pandas-Data%20Analysis-150458?logo=pandas&logoColor=white">
+  <img src="https://img.shields.io/badge/Matplotlib-Visualization-orange">
+  <img src="https://img.shields.io/badge/CSV-Data-green">
+  <img src="https://img.shields.io/badge/Git-Version%20Control-F05032?logo=git&logoColor=white">
+  <img src="https://img.shields.io/badge/GitHub-Portfolio-181717?logo=github&logoColor=white">
+</p>
+
 Projeto de análise de dados desenvolvido para simular um cenário de vendas e transformar dados brutos em informações úteis para tomada de decisão.
 
 O objetivo é demonstrar habilidades práticas em **Python, análise de dados, tratamento de informações e geração de indicadores de negócio (KPIs)**.
